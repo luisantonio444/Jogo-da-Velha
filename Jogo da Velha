@@ -1,0 +1,166 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define VAZIO ' '
+#define JOGADOR 'O'
+#define IA 'X'
+
+// Protótipos das funções
+void inicializarTabuleiro(char tabuleiro[3][3]);
+void imprimirTabuleiro(char tabuleiro[3][3]);
+int checarVitoria(char tabuleiro[3][3], char jogador);
+int jogadaR1(char tabuleiro[3][3], char simbolo);
+int jogadaR2(char tabuleiro[3][3]);
+int jogadaR3(char tabuleiro[3][3]);
+int jogadaR4(char tabuleiro[3][3]);
+int jogadaR5(char tabuleiro[3][3]);
+int jogadaR6(char tabuleiro[3][3]);
+void jogadaIA(char tabuleiro[3][3]);
+int jogadaValida(char tabuleiro[3][3], int linha, int coluna);
+
+int main() {
+    char tabuleiro[3][3];
+    int linha, coluna, jogadas = 0;
+
+    inicializarTabuleiro(tabuleiro);
+    printf("Bem-vindo ao Jogo da Velha!\n");
+    imprimirTabuleiro(tabuleiro);
+
+    while (jogadas < 9) {
+        // Jogador faz sua jogada
+        printf("Sua vez! Insira linha e coluna (0-2): ");
+        scanf("%d %d", &linha, &coluna);
+
+        if (!jogadaValida(tabuleiro, linha, coluna)) {
+            printf("Jogada inválida! Tente novamente.\n");
+            continue;
+        }
+
+        tabuleiro[linha][coluna] = JOGADOR;
+        jogadas++;
+        imprimirTabuleiro(tabuleiro);
+
+        if (checarVitoria(tabuleiro, JOGADOR)) {
+            printf("Você venceu!\n");
+            break;
+        }
+
+        if (jogadas == 9) break;
+
+        // IA faz sua jogada
+        printf("Vez da IA:\n");
+        jogadaIA(tabuleiro);
+        jogadas++;
+        imprimirTabuleiro(tabuleiro);
+
+        if (checarVitoria(tabuleiro, IA)) {
+            printf("A IA venceu!\n");
+            break;
+        }
+    }
+
+    if (jogadas == 9) {
+        printf("Empate!\n");
+    }
+
+    return 0;
+}
+
+void inicializarTabuleiro(char tabuleiro[3][3]) {
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            tabuleiro[i][j] = VAZIO;
+}
+
+void imprimirTabuleiro(char tabuleiro[3][3]) {
+    printf("\n");
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            printf(" %c ", tabuleiro[i][j]);
+            if (j < 2) printf("|");
+        }
+        printf("\n");
+        if (i < 2) printf("---|---|---\n");
+    }
+    printf("\n");
+}
+
+int jogadaValida(char tabuleiro[3][3], int linha, int coluna) {
+    return linha >= 0 && linha < 3 && coluna >= 0 && coluna < 3 && tabuleiro[linha][coluna] == VAZIO;
+}
+
+int checarVitoria(char tabuleiro[3][3], char jogador) {
+    for (int i = 0; i < 3; i++) {
+        if ((tabuleiro[i][0] == jogador && tabuleiro[i][1] == jogador && tabuleiro[i][2] == jogador) || // Linhas
+            (tabuleiro[0][i] == jogador && tabuleiro[1][i] == jogador && tabuleiro[2][i] == jogador))   // Colunas
+            return 1;
+    }
+    if ((tabuleiro[0][0] == jogador && tabuleiro[1][1] == jogador && tabuleiro[2][2] == jogador) ||     // Diagonal principal
+        (tabuleiro[0][2] == jogador && tabuleiro[1][1] == jogador && tabuleiro[2][0] == jogador))       // Diagonal secundária
+        return 1;
+
+    return 0;
+}
+
+int jogadaR1(char tabuleiro[3][3], char simbolo) {
+    for (int i = 0; i < 3; i++) {
+        // Checa linhas
+        if (tabuleiro[i][0] == simbolo && tabuleiro[i][1] == simbolo && tabuleiro[i][2] == VAZIO) { tabuleiro[i][2] = IA; return 1; }
+        if (tabuleiro[i][0] == simbolo && tabuleiro[i][2] == simbolo && tabuleiro[i][1] == VAZIO) { tabuleiro[i][1] = IA; return 1; }
+        if (tabuleiro[i][1] == simbolo && tabuleiro[i][2] == simbolo && tabuleiro[i][0] == VAZIO) { tabuleiro[i][0] = IA; return 1; }
+
+        // Checa colunas
+        if (tabuleiro[0][i] == simbolo && tabuleiro[1][i] == simbolo && tabuleiro[2][i] == VAZIO) { tabuleiro[2][i] = IA; return 1; }
+        if (tabuleiro[0][i] == simbolo && tabuleiro[2][i] == simbolo && tabuleiro[1][i] == VAZIO) { tabuleiro[1][i] = IA; return 1; }
+        if (tabuleiro[1][i] == simbolo && tabuleiro[2][i] == simbolo && tabuleiro[0][i] == VAZIO) { tabuleiro[0][i] = IA; return 1; }
+    }
+    // Checa diagonais
+    if (tabuleiro[0][0] == simbolo && tabuleiro[1][1] == simbolo && tabuleiro[2][2] == VAZIO) { tabuleiro[2][2] = IA; return 1; }
+    if (tabuleiro[0][0] == simbolo && tabuleiro[2][2] == simbolo && tabuleiro[1][1] == VAZIO) { tabuleiro[1][1] = IA; return 1; }
+    if (tabuleiro[1][1] == simbolo && tabuleiro[2][2] == simbolo && tabuleiro[0][0] == VAZIO) { tabuleiro[0][0] = IA; return 1; }
+    if (tabuleiro[0][2] == simbolo && tabuleiro[1][1] == simbolo && tabuleiro[2][0] == VAZIO) { tabuleiro[2][0] = IA; return 1; }
+    if (tabuleiro[0][2] == simbolo && tabuleiro[2][0] == simbolo && tabuleiro[1][1] == VAZIO) { tabuleiro[1][1] = IA; return 1; }
+    if (tabuleiro[1][1] == simbolo && tabuleiro[2][0] == simbolo && tabuleiro[0][2] == VAZIO) { tabuleiro[0][2] = IA; return 1; }
+
+    return 0;
+}
+
+int jogadaR2(char tabuleiro[3][3]) {
+    // Simplificação: Não implementado completamente.
+    return 0;
+}
+
+int jogadaR3(char tabuleiro[3][3]) {
+    if (tabuleiro[1][1] == VAZIO) {
+        tabuleiro[1][1] = IA;
+        return 1;
+    }
+    return 0;
+}
+
+int jogadaR4(char tabuleiro[3][3]) {
+    if (tabuleiro[0][0] == JOGADOR && tabuleiro[2][2] == VAZIO) { tabuleiro[2][2] = IA; return 1; }
+    if (tabuleiro[2][2] == JOGADOR && tabuleiro[0][0] == VAZIO) { tabuleiro[0][0] = IA; return 1; }
+    return 0;
+}
+
+int jogadaR5(char tabuleiro[3][3]) {
+    if (tabuleiro[0][0] == VAZIO) { tabuleiro[0][0] = IA; return 1; }
+    return 0;
+}
+
+int jogadaR6(char tabuleiro[3][3]) {
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            if (tabuleiro[i][j] == VAZIO) { tabuleiro[i][j] = IA; return 1; }
+    return 0;
+}
+
+void jogadaIA(char tabuleiro[3][3]) {
+    if (jogadaR1(tabuleiro, IA)) return;
+    if (jogadaR1(tabuleiro, JOGADOR)) return;
+    if (jogadaR3(tabuleiro)) return;
+    if (jogadaR4(tabuleiro)) return;
+    if (jogadaR5(tabuleiro)) return;
+    jogadaR6(tabuleiro);
+}
